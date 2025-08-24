@@ -11,16 +11,17 @@ typedef struct territorio
     char nome[30];
     char cor[10];
     int tropas;
-    struct Territorio *prox;
+    struct territorio *prox;
 } Territorio;
 
+// declaração das funções
 Territorio cadastrarTerritorio(Territorio territorio);
 void exibirTerritorio(Territorio *territorio);
-Territorio *buscarTerritorio(Territorio *no_cabeca, char nome[]);
+Territorio *buscarTerritorio(Territorio *no_cabeca, char nome[30]);
 Territorio *inserirNaLista(Territorio territorio, Territorio *noCabeca);
 void imprimirLista(Territorio *noCabeca);
 int realizarAtaque(Territorio *atacante, Territorio *defensor);
-int *validarCoresExercitos(Territorio *noCabeca);
+int validarCoresExercitos(Territorio *noCabeca);
 void liberarMemoria(Territorio *noCabeca);
 
 // solicita e armazena os dados do territorio
@@ -59,30 +60,22 @@ Territorio *buscarTerritorio(Territorio *no_cabeca, char nome[30])
     if (no_cabeca->prox == NULL)
     {
         printf("\nNenhum território cadastrado.\n");
-        return;
+        return NULL;
     }
 
     Territorio *atual = no_cabeca->prox;
-    Territorio **aux = no_cabeca;
 
     while (atual != NULL)
     {
-        if (strcmp(atual->nome, nome) > 0)
+        if (strcmp(atual->nome, nome) == 0)
         {
-            *aux = atual;
-            atual = atual->prox;
-        }
-        else if (strcmp(atual->nome, nome) == 0)
-        {
-            // retorna territorio encontrado
             return atual;
         }
-        else
-        {
-            printf("\nTerritório não encontrado.\n");
-            return NULL;
-        }
+        atual = atual->prox;
     }
+
+    printf("\nTerritório não encontrado.\n");
+    return NULL;
 }
 
 // insere um novo territorio na lista encadeada
@@ -116,16 +109,15 @@ void imprimirLista(Territorio *noCabeca)
         return;
     }
 
-    Territorio *temp = (Territorio *)malloc(sizeof(Territorio));
+    Territorio *temp = noCabeca->prox;
 
     printf("\nExibindo todos os territórios:\n");
 
-    for (temp = noCabeca->prox; temp != NULL; temp = temp->prox)
+    while (temp != NULL)
     {
         exibirTerritorio(temp);
+        temp = temp->prox;
     }
-
-    free(temp);
 }
 
 // realiza ataque entre dois territorios
@@ -190,8 +182,9 @@ int realizarAtaque(Territorio *atacante, Territorio *defensor)
         return 1;
     }
 }
+
 // valida se todos os territorios são da mesma cor
-int *validarCoresExercitos(Territorio *noCabeca)
+int validarCoresExercitos(Territorio *noCabeca)
 {
     Territorio *atual = noCabeca->prox;
     char corReferencia[10];
@@ -210,6 +203,7 @@ int *validarCoresExercitos(Territorio *noCabeca)
     return 1;
 }
 
+// libera memória alocada para a lista encadeada
 void liberarMemoria(Territorio *noCabeca)
 {
     Territorio *atual = noCabeca;
@@ -223,6 +217,7 @@ void liberarMemoria(Territorio *noCabeca)
     }
 }
 
+// função principal
 int main(void)
 {
     // inicializa variáveis
@@ -231,11 +226,11 @@ int main(void)
     int result = 0;
     Territorio territorio = {0};
     Territorio *noCabeca = (Territorio *)malloc(sizeof(Territorio));
-    Territorio *novoNo = (Territorio *)malloc(sizeof(Territorio));
-    Territorio *atacante = (Territorio *)malloc(sizeof(Territorio));
-    Territorio *defensor = (Territorio *)malloc(sizeof(Territorio));
-    char atacanteNome[30] = "\0";
-    char defensorNome[30] = "\0";
+    Territorio *novoNo = NULL;
+    Territorio *atacante = NULL;
+    Territorio *defensor = NULL;
+    char atacanteNome[30] = {0};
+    char defensorNome[30] = {0};
     // inicializa gerador de números aleatórios
     srand(time(NULL));
 
@@ -282,8 +277,8 @@ int main(void)
             {
                 do
                 {
-                    atacanteNome[30] = "\0";
-                    defensorNome[30] = "\0";
+                    atacanteNome[0] = '\0';
+                    defensorNome[0] = '\0';
                     printf("\nSelecione dois territórios para o combate:");
                     printf("\n\n1. Nome do território atacante: ");
                     scanf(" %[^\n]", atacanteNome);
@@ -302,7 +297,7 @@ int main(void)
                 } while ((atacante == NULL || defensor == NULL) ||
                          (strcmp(atacanteNome, defensorNome) == 0));
 
-                // se encontrou atacante e defensor, realiza ataque
+                // se encontrou atacante e defensor, realizar ataque
                 result = realizarAtaque(atacante, defensor);
 
                 // valida se todos os territorios são da mesma cor
@@ -319,6 +314,7 @@ int main(void)
         case '3':
             printf("\n***********************************************************");
             printf("\n                     Ver mapa do jogo                      \n");
+            
             imprimirLista(noCabeca);
             printf("\nVoltando ao menu anterior...\n");
 
